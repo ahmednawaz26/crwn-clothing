@@ -4,7 +4,7 @@ import { rootReducer } from "./root-reducer";
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage';
 
-const middlewares = [logger];
+const middlewares = [process.env.NODE_ENV !== 'production' && logger].filter(Boolean);
 
 const persistConfig = {
     key: 'root',
@@ -14,7 +14,9 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-const composedEnhancer = compose(applyMiddleware(...middlewares));
+const composeEnhancer = (process.env.NODE_ENV !== 'production' && window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
+
+const composedEnhancer = composeEnhancer(applyMiddleware(...middlewares));
 
 export const store = createStore(persistedReducer, undefined, composedEnhancer);
 
